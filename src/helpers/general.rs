@@ -1,3 +1,4 @@
+use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 
@@ -61,6 +62,12 @@ pub async fn ai_task_request(
    let decoded_response: T = serde_json::from_str(llm_response.as_str())
       .expect("Failed to decode ai response from serde_json");
    return decoded_response;
+}
+
+// Check whether request url is valid
+pub async fn check_status_code(client: &Client, url: &str) -> Result<u16, reqwest::Error> {
+   let response = client.get(url).send().await?;
+   Ok(response.status().as_u16())
 }
 
 #[cfg(test)]
