@@ -1,21 +1,21 @@
 use crossterm::{
     style::{Color, ResetColor, SetForegroundColor},
-    ExecutableCommand
+    ExecutableCommand,
 };
 use std::io::{stdin, stdout, Read};
 
 #[derive(PartialEq, Debug)]
 pub enum PrintCommand {
-    AICall, 
-    UnitTest, 
-    Issue
+    AICall,
+    UnitTest,
+    Issue,
 }
 
 impl PrintCommand {
-    pub fn print_agent_message(&self, agent_pos: &str, agent_statement: &str) -> String{
+    pub fn print_agent_message(&self, agent_pos: &str, agent_statement: &str) -> String {
         let mut stdout: std::io::Stdout = stdout();
 
-        // Decide on the color 
+        // Decide on the color
         let statement_color: Color = match self {
             Self::AICall => Color::Cyan,
             Self::UnitTest => Color::Magenta,
@@ -42,10 +42,8 @@ impl PrintCommand {
 
         // Trim whitespace and return
         return user_response.trim().to_string();
-
     }
 }
-
 
 // Get user request
 pub fn get_user_response(question: &str) -> String {
@@ -64,18 +62,17 @@ pub fn get_user_response(question: &str) -> String {
     stdin()
         .read_line(&mut user_response)
         .expect("Failed to read response");
-    
-    // Trim whitespace and return
-    return  user_response.trim().to_string();
-}
 
+    // Trim whitespace and return
+    return user_response.trim().to_string();
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_prints_agent_msg(){
+    fn test_prints_agent_msg() {
         PrintCommand::AICall.print_agent_message("Managing Agent", "Tell me a joke");
     }
 }
