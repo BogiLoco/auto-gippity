@@ -42,4 +42,18 @@ impl AgentSolutionArchitect {
         self.attributes.update_state(AgentState::Finished);
         return ai_response;
     }
+
+    // Retrieve the project scope
+    async fn call_determine_external_urls(&mut self, factsheet: &mut FactSheet, msg_context: String) {
+        let ai_response: Vec<String> = ai_task_request_decoded::<Vec<String>>(
+            msg_context,
+            &self.attributes.position,
+            get_function_string!(print_site_urls),
+            print_site_urls,
+        )
+        .await;
+
+        factsheet.external_urls == Some(ai_response);
+        self.attributes.state = AgentState::UnitTesting;
+    }
 }
