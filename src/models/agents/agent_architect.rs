@@ -57,3 +57,37 @@ impl AgentSolutionArchitect {
         self.attributes.state = AgentState::UnitTesting;
     }
 }
+#[async_trait]
+impl SpecialFunctions for AgentSolutionArchitect {
+    
+    fn get_attribute_from_agent(&self) -> &BasicAgent {
+        &self.attributes
+    }
+
+    async fn execute(&mut self, factsheet: &mut FactSheet) -> Result<(), Box<dyn std::error::Error>> {
+
+        while self.attributes.state != AgentState::Finished {
+            match self.attributes.state  {
+                AgentState::Discovery => {
+                    let project_scope = self.call_project_scope(factsheet).await;
+                    
+                    // Confirm if external urls
+                    if project_scope.is_external_urls_required{
+                        self.call_determine_external_urls(factsheet, factsheet.project_description.clone()).await;
+                        self.attributes.state == AgentState::UnitTesting;
+                    }
+                }
+
+                AgentState::UnitTesting => {
+                    
+                }
+
+                _ => {
+                    self.attributes.state == AgentState::Finished;
+                }
+            }
+        }
+        Ok(())
+    }
+
+}
