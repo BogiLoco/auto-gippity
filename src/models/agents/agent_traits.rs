@@ -33,6 +33,8 @@ pub trait SpecialFunctions: Debug {
     // Used to that manager can get attribute from Agents
     fn get_attribute_from_agent(&self) -> &BasicAgent;
     // This function will allow agents to execute their logic
-    fn execute<'a>(&'a mut self, factsheet: &'a mut FactSheet) 
-        -> Pin<Box<dyn Future<Output = Result<(), Box<dyn std::error::Error>>> + Send + 'a>>;
+    fn execute<'a>(
+        &'a mut self,
+        factsheet: &'a mut FactSheet,
+    ) -> Pin<Box<dyn Future<Output = Result<(), Box<dyn std::error::Error>>> + Send + 'a>>;
 }
