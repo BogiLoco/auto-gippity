@@ -1,43 +1,44 @@
 use crate::ai_functions::aifunc_backend::{
-    print_backend_webserver_code,print_fixed_code, print_improved_webserver_code, print_rest_api_endpoints
+    print_backend_webserver_code, print_fixed_code, print_improved_webserver_code,
+    print_rest_api_endpoints,
 };
 use crate::helpers::general::{
-    check_status_code, read_code_template_contents, save_api_endpoints, save_backend_code
+    check_status_code, read_code_template_contents, read_exec_main_contents, save_api_endpoints,
+    save_backend_code,
 };
 
 use crate::helpers::command_line::PrintCommand;
 use crate::helpers::general::ai_task_request;
-use crate::models::agent_basic::basic_agent::{ AgentState, BasicAgent };
-use crate::models::agents::agent_traits::{ FactSheet, RouteObject, SpecialFunctions };
+use crate::models::agent_basic::basic_agent::{AgentState, BasicAgent};
+use crate::models::agents::agent_traits::{FactSheet, RouteObject, SpecialFunctions};
 
 use async_trait::async_trait;
 use reqwest::Client;
 use std::fs;
-use std::process::{ Command, Stdio };
+use std::process::{Command, Stdio};
 use std::time::Duration;
 use tokio::time;
 
 #[derive(Debug)]
 pub struct AgentBacendDeveloper {
-    attributes: BasicAgent, 
+    attributes: BasicAgent,
     bug_errors: Option<String>,
     bug_count: u8,
 }
 
 impl AgentBacendDeveloper {
-    
     pub fn new() -> Self {
         let attributes = BasicAgent {
             objective: "Develop backend code for webserver and json database".to_string(),
             position: "Backend Developer".to_string(),
-            state: AgentState::Discovery, 
-            memory: vec![]
+            state: AgentState::Discovery,
+            memory: vec![],
         };
 
         Self {
             attributes,
-            bug_errors: None, 
-            bug_count: 0
+            bug_errors: None,
+            bug_count: 0,
         }
     }
 
@@ -46,7 +47,8 @@ impl AgentBacendDeveloper {
 
         // Concatenate Instruction
         let msg_context = format!(
-            "CODE TEMPLATE: {} \n PROJECT_DESCRIPTION: {} \n", code_template_str, factsheet.project_description
+            "CODE TEMPLATE: {} \n PROJECT_DESCRIPTION: {} \n",
+            code_template_str, factsheet.project_description
         );
 
         let ai_response: String = ai_task_request(
@@ -66,7 +68,8 @@ impl AgentBacendDeveloper {
 
         // Concatenate Instruction
         let msg_context = format!(
-            "CODE TEMPLATE: {:?} \n PROJECT_DESCRIPTION: {:?} \n", factsheet.backend_code, factsheet
+            "CODE TEMPLATE: {:?} \n PROJECT_DESCRIPTION: {:?} \n",
+            factsheet.backend_code, factsheet
         );
 
         let ai_response: String = ai_task_request(
@@ -101,5 +104,22 @@ impl AgentBacendDeveloper {
 
         save_backend_code(&ai_response);
         factsheet.backend_code = Some(ai_response);
+    }
+
+    async fn call_extract_rest_api_endpoint(&self) -> String {
+        let backend_code = read_exec_main_contents();
+
+        // Structure message context
+        let msg_context = format!("CODE INPUT {}", backend_code);
+
+        let ai_response: String = ai_task_request(
+            msg_context,
+            &self.attributes.position,
+            get_function_string!(print_rest_api_endpoints),
+            print_rest_api_endpoints,
+        )
+        .await;
+
+        ai_response
     }
 }
