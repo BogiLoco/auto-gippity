@@ -30,8 +30,9 @@ pub struct FactSheet {
 
 #[async_trait]
 pub trait SpecialFunctions: Debug {
-    // Used to that manager can get attribute from Agents
+    // Used to that manager can get attributes from Agents
     fn get_attributes_from_agent(&self) -> &BasicAgent;
+
     // This function will allow agents to execute their logic
     async fn execute(
         &mut self,

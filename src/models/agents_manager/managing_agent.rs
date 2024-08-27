@@ -4,20 +4,20 @@ use crate::models::agents::agent_traits::{FactSheet, SpecialFunctions};
 use crate::ai_functions::aifunc_managing::convert_user_input_to_goal;
 use crate::helpers::general::ai_task_request;
 use crate::models::agents::agent_architect::AgentSolutionArchitect;
-use crate::models::general::llm::Message;
+use crate::models::agents::agent_backend::AgentBackendDeveloper;
 
 #[derive(Debug)]
 pub struct ManagingAgent {
-    attributes: BasicAgent,
+    _attributes: BasicAgent,
     factsheet: FactSheet,
     agents: Vec<Box<dyn SpecialFunctions>>,
 }
 
 impl ManagingAgent {
     pub async fn new(usr_req: String) -> Result<Self, Box<dyn std::error::Error>> {
-        let position = "Project Manager".to_string();
+        let position: String = "Project Manager".to_string();
 
-        let attributes = BasicAgent {
+        let attributes: BasicAgent = BasicAgent {
             objective: "Manage agents who are building an excellent website for the user"
                 .to_string(),
             position: position.clone(),
@@ -25,7 +25,7 @@ impl ManagingAgent {
             memory: vec![],
         };
 
-        let project_description = ai_task_request(
+        let project_description: String = ai_task_request(
             usr_req,
             &position,
             get_function_string!(convert_user_input_to_goal),
@@ -44,7 +44,7 @@ impl ManagingAgent {
         };
 
         Ok(Self {
-            attributes,
+            _attributes: attributes,
             factsheet,
             agents,
         })
@@ -56,17 +56,18 @@ impl ManagingAgent {
 
     fn create_agents(&mut self) {
         self.add_agent(Box::new(AgentSolutionArchitect::new()));
+        self.add_agent(Box::new(AgentBackendDeveloper::new()));
     }
 
     pub async fn execute_project(&mut self) {
         self.create_agents();
 
         for agent in &mut self.agents {
-            let agent_res: Result<(), Box<dyn std::error::Error>> =
+            let _agent_res: Result<(), Box<dyn std::error::Error>> =
                 agent.execute(&mut self.factsheet).await;
 
-            let agent_info = agent.get_attributes_from_agent();
-            dbg!(agent_info);
+            // let agent_info: &BasicAgent = agent.get_attributes_from_agent();
+            // dbg!(agent_info);
         }
     }
 }
@@ -77,9 +78,9 @@ mod tests {
 
     #[tokio::test]
     async fn tests_managing_agent() {
-        let usr_request: &str = "Need a full stack app that fetches and tracks my fitness progress. Needs to include timezone info from the web.";
+        let usr_request: &str = "need a full stack app that fetches and tracks my fitness progress. Needs to include timezone info from the web.";
 
-        let mut managing_agent = ManagingAgent::new(usr_request.to_string())
+        let mut managing_agent: ManagingAgent = ManagingAgent::new(usr_request.to_string())
             .await
             .expect("Error creating Managing Agent");
 
